@@ -1,15 +1,25 @@
 [package]
-name = "task-helloworld"
+name = "task-pldm-responder"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 userlib = { path = "../../sys/userlib", features = ["panic-messages"] }
+firmware-device-api = { path = "../firmware-device-api" }
+pldm-lib = { path = "../../../pldm-lib" }
+zerocopy.workspace = true
+zerocopy-derive.workspace = true
+num-traits.workspace = true
+
+counters = { path = "../../lib/counters" }
+
+[build-dependencies]
+idol = { workspace = true }
 
 # This section is here to discourage RLS/rust-analyzer from doing test builds,
 # since test builds don't work for cross compilation.
 [[bin]]
-name = "task-helloworld"
+name = "task-pldm-responder"
 test = false
 doctest = false
 bench = false

@@ -23,20 +23,24 @@ max-sizes = {flash = 128, ram = 256}
 stacksize = 256
 start = true
 
-[tasks.uart_driver]
-name = "drv-ast1060-uart"
-priority = 2
-max-sizes = {flash = 8192, ram = 2048}
-uses = ["uart"]
-start = true
-notifications = ["uart-irq"]
-interrupts = {"uart.irq" = "uart-irq"}
-# task-slots = ["rcc_driver"]
+#[tasks.firmware_device_api]
+#name = "firmware-device-api"
+#priority = 3
+#max-sizes = {flash = 8192, ram = 2048}
+## uses = ["uart"]
+#start = true
 
-[tasks.helloworld]
-name = "task-helloworld"
-priority = 3
-max-sizes = {flash = 8192, ram = 2048}
-uses = ["uart"]
+# [tasks.pldm_initiator]
+# name = "task-pldm-initiator"
+# priority = 4
+# max-sizes = {flash = 4096, ram = 1024}
+# start = true
+# task-slots = ["firmware_device_api"]
+
+[tasks.pldm_responder]
+name = "task-pldm-responder"
+priority = 4
+max-sizes = { flash = 12288, ram = 8192 }
+stacksize = 4352
 start = true
-task-slots = ["uart_driver"]
+#task-slots = ["firmware_device_api"]

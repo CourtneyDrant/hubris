@@ -1,0 +1,14 @@
+Interface(
+    name: "fd_api",
+    ops: {
+        "process_request": (
+            leases: {
+                "msg_buff": (type: "[u8]", write: true),
+            },
+            reply: Result(
+                ok: "usize",
+                err: CLike("FDError")
+            ),
+        ),
+    },
+)

@@ -1,0 +1,100 @@
+Interface(
+    name: "fd_internal",
+    ops: {
+        "set_fd_state": (
+            args: {
+                "state": "FirmwareDeviceState",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_fd_idle": (
+            args: {
+                "reason_code": "GetStatusReasonCode",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_component": (
+            args: {
+                "comp": "&FirmwareComponent",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_update_flags": (
+            args: {
+                "flags": "UpdateOptionFlags",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_fd_req": (
+            args: {
+                "req_state": "FdReqState",
+                "complete": "bool",
+                "result": "Option<u8>",
+                "command": "Option<u8>",
+                "sent_time": "Option<PldmFdTime>",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_fd_req_state": (
+            args: {
+                "state": "FdReqState",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_fd_download_state": (
+            args: {
+                "offset": "u32",
+                "length": "u32",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_initiator_mode": (
+            args: {
+                "mode": "InitiatorModeState",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_fd_verify_progress": (
+            args: {
+                "progress": "u8",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+        "set_fd_apply_progress": (
+            args: {
+                "progress": "u8",
+            },
+            reply: Result(
+                ok: "()",
+                err: CLike("FDError")
+            ),
+        ),
+    },
+)

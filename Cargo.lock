@@ -3107,6 +3107,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "firmware-device-api"
+version = "0.1.0"
+dependencies = [
+ "counters",
+ "derive-idol-err",
+ "idol",
+ "idol-runtime",
+ "num-traits",
+ "pldm-common",
+ "pldm-lib",
+ "userlib",
+ "zerocopy 0.8.27",
+ "zerocopy-derive 0.8.27",
+]
+
+[[package]]
 name = "fixedmap"
 version = "0.1.0"
 
@@ -3800,9 +3816,9 @@ checksum = "ef53942eb7bf7ff43a617b3e2c1c4a5ecf5944a7c1bc12d7ee39bbb15e5c1519"
 
 [[package]]
 name = "lock_api"
-version = "0.4.5"
+version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "712a4d093c9976e24e7dbca41db895dabcbac38eb5f4045393d17a95bdfb1109"
+checksum = "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965"
 dependencies = [
  "scopeguard",
 ]
@@ -4552,6 +4568,21 @@ name = "plain"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4596b6d070b27117e987119b4dac604f3c58cfb0b191112e24771b2faeac1a6"
+
+[[package]]
+name = "pldm-common"
+version = "0.1.0"
+dependencies = [
+ "bitfield 0.14.0",
+ "zerocopy 0.8.27",
+]
+
+[[package]]
+name = "pldm-lib"
+version = "0.1.0"
+dependencies = [
+ "pldm-common",
+]
 
 [[package]]
 name = "pmbus"
@@ -5732,13 +5763,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "task-helloworld"
-version = "0.1.0"
-dependencies = [
- "userlib",
-]
-
-[[package]]
 name = "task-hiffy"
 version = "0.1.0"
 dependencies = [
@@ -6076,6 +6100,20 @@ dependencies = [
  "drv-user-leds-api",
  "idol",
  "userlib",
+]
+
+[[package]]
+name = "task-pldm-responder"
+version = "0.1.0"
+dependencies = [
+ "counters",
+ "firmware-device-api",
+ "idol",
+ "num-traits",
+ "pldm-lib",
+ "userlib",
+ "zerocopy 0.8.27",
+ "zerocopy-derive 0.8.27",
 ]
 
 [[package]]
