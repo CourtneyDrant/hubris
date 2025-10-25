@@ -4,9 +4,9 @@
 
 #![no_std]
 
-pub use embedded_hal::serial::{Read, Write};
 use ast1060_pac as device;
-use unwrap_lite::UnwrapLite;
+// pub use embedded_hal::serial::{Read, Write};S
+pub use embedded_io::{Read, Write};
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub enum Error {
@@ -16,6 +16,7 @@ pub enum Error {
     BufFull,
 }
 
+#[derive(Debug)]
 pub enum InterruptDecoding {
     ModemStatusChange = 0,
     TxEmpty = 1,
@@ -57,54 +58,73 @@ impl<'a> From<&'a device::uart::RegisterBlock> for Usart<'a> {
             });
         }
 
-        // Self { usart }.set_rate(Rate::MBaud1_5).set_8n1().interrupt_enable()
-        Self { usart }.set_rate(Rate::MBaud1_5).set_8n1().interrupt_enable()
-        // Self { usart }.interrupt_enable()
+        Self { usart }
+            .set_rate(Rate::MBaud1_5)
+            .set_8n1()
+            .interrupt_enable()
     }
 }
 
-impl Write<u8> for Usart<'_> {
+impl embedded_io::ErrorType for Usart<'_> {
     type Error = Error;
+}
 
-    fn flush(&mut self) -> nb::Result<(), Error> {
-        if self.is_tx_idle() {
-            Ok(())
-        } else {
-            Err(nb::Error::WouldBlock)
-        }
-    }
-
-    fn write(&mut self, byte: u8) -> nb::Result<(), Error> {
-        if !self.is_tx_full() {
-            // This is unsafe because we can transmit 7, 8 or 9 bits but the
-            // interface can't know what it's been configured for.
-            self.usart.uartthr().write(|w| unsafe { w.bits(byte as u32) });
-            Ok(())
-        } else {
-            Err(nb::Error::WouldBlock)
-        }
+impl embedded_io::Error for Error {
+    fn kind(&self) -> embedded_io::ErrorKind {
+        embedded_io::ErrorKind::Other
     }
 }
 
-impl Read<u8> for Usart<'_> {
-    type Error = Error;
+impl Write for Usart<'_> {
+    fn flush(&mut self) -> Result<(), Error> {
+        while !self.is_tx_idle() {}
+        Ok(())
+    }
 
-    fn read(&mut self) -> nb::Result<u8, Self::Error> {
-        if !self.is_rx_empty() {
+    fn write(&mut self, buf: &[u8]) -> Result<usize, Error> {
+        for (n, byte) in buf.iter().enumerate() {
+            if !self.is_tx_full() {
+                // This is unsafe because we can transmit 7, 8 or 9 bits but the
+                // interface can't know what it's been configured for.
+                self.usart
+                    .uartthr()
+                    .write(|w| unsafe { w.bits(*byte as u32) });
+            } else {
+                if n == 0 {
+                    // spec demands to block until atleast one byte has been written
+                    continue;
+                }
+                return Ok(n);
+            }
+        }
+        Ok(buf.len())
+    }
+}
+
+impl Read for Usart<'_> {
+    fn read(&mut self, out: &mut [u8]) -> Result<usize, Self::Error> {
+        if out.is_empty() {
+            return Ok(0);
+        }
+        let mut count = 0;
+        while self.is_rx_empty() {} // Wait until atleast one byte is available
+        while !self.is_rx_empty() {
             let byte = self.usart.uartrbr().read().bits() as u8;
             if self.is_rx_frame_err() {
-                Err(nb::Error::Other(Error::Frame))
+                return Err(Error::Frame);
             } else if self.is_rx_parity_err() {
-                Err(nb::Error::Other(Error::Parity))
+                return Err(Error::Parity);
             } else if self.is_rx_noise_err() {
-                Err(nb::Error::Other(Error::Noise))
-            } else {
-                // assume 8 bit data
-                Ok(byte.try_into().unwrap_lite())
+                return Err(Error::Noise);
             }
-        } else {
-            Err(nb::Error::WouldBlock)
+            out[count] = byte;
+
+            count += 1;
+            if count >= out.len() {
+                break;
+            }
         }
+        Ok(count)
     }
 }
 
@@ -117,10 +137,10 @@ pub enum Rate {
 impl<'a> Usart<'a> {
     pub fn set_rate(self, rate: Rate) -> Self {
         // These baud rates assume that the uart clock is set to 24Mhz.
-        
+
         // Enable DLAB to access divisor latch registers
         self.usart.uartlcr().modify(|_, w| w.dlab().set_bit());
-        
+
         // Divisor = 24M / (13 * 16 * Baud Rate)
         match rate {
             Rate::Baud9600 => {
@@ -143,12 +163,11 @@ impl<'a> Usart<'a> {
     }
 
     pub fn interrupt_enable(self) -> Self {
-
         self.usart.uartier().write(|w| {
             w.erbfi().set_bit(); // Enable Received Data Available Interrupt
-            // w.etbei().set_bit(); // Enable Transmitter Holding Register Empty Interrupt
-            // w.elsi().set_bit(); // Enable Receiver Line Status Interrupt
-            // w.edssi().set_bit() // Enable Modem Status Interrupt
+            w.etbei().set_bit(); // Enable Transmitter Holding Register Empty Interrupt
+            w.elsi().set_bit(); // Enable Receiver Line Status Interrupt
+            w.edssi().set_bit(); // Enable Modem Status Interrupt
             w
         });
 
@@ -181,7 +200,10 @@ impl<'a> Usart<'a> {
     }
 
     pub fn read_interrupt_status(&self) -> InterruptDecoding {
-        InterruptDecoding::try_from(self.usart.uartiir().read().intdecoding_table().bits() & 0x07).unwrap_or(InterruptDecoding::Unknown)
+        InterruptDecoding::try_from(
+            self.usart.uartiir().read().intdecoding_table().bits() & 0x07,
+        )
+        .unwrap_or(InterruptDecoding::Unknown)
     }
 
     pub fn read_line_status(&self) -> u8 {
@@ -193,9 +215,8 @@ impl<'a> Usart<'a> {
     }
 
     pub fn is_tx_idle(&self) -> bool {
-        // self.usart.uartlsr().read().txter_empty().bit_is_set()
-        // self.usart.uartlsr().read().txter_empty().bit_is_set()
-        self.usart.uartiir().read().intdecoding_table() == 0x01
+        self.usart.uartlsr().read().txter_empty().bit_is_set()
+        // self.usart.uartiir().read().intdecoding_table() == 0x01
     }
 
     pub fn set_tx_idle_interrupt(&self) {
