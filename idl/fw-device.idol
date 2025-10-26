@@ -1,0 +1,15 @@
+Interface(
+    name: "FwDevice",
+    ops: {
+        "process_request": (
+            leases: {
+                "request": (type: "[u8]", read: true),
+                "response": (type: "[u8]", write: true),
+            },
+            reply: Result(
+                ok: "usize",
+                err: CLike("FDError")
+            ),
+        ),
+    },
+)

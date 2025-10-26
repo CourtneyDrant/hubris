@@ -1,0 +1,24 @@
+[package]
+name = "pldm-responder"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+userlib = { path = "../../sys/userlib", features = ["panic-messages"] }
+idol-runtime = { workspace = true }
+mctp-api = { path = "../mctp-api" }
+mctp = { workspace = true }
+
+[build-dependencies]
+idol = { workspace = true }
+
+# This section is here to discourage RLS/rust-analyzer from doing test builds,
+# since test builds don't work for cross compilation.
+[[bin]]
+name = "pldm-responder"
+test = false
+doctest = false
+bench = false
+
+[lints]
+workspace = true
