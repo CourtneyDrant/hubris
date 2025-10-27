@@ -15,6 +15,7 @@ use idol_runtime::{NotificationHandler, RequestError, ClientError};
 use userlib::{RecvMessage, FromPrimitive};
 use pldm_lib::cmd_interface::{self, CmdInterface};
 use pldm_lib::config::PLDM_PROTOCOL_CAPABILITIES;
+use fw_device_api::FDError;
 use core::char::MAX;
 use core::ops::DerefMut;
 
@@ -22,24 +23,6 @@ use crate::idl::InOrderFwDeviceImpl;
 
 pub const MAX_MCTP_PLDM_MSG_SIZE: usize = 1024;
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, counters::Count, FromPrimitive, IdolError,
-)]
-#[repr(u32)]
-enum FDError {
-    InvalidMessage = 1,
-    MessageTooLarge = 2,
-    PldmError = 3,
-    NotReady = 4,
-}
-
-impl From<ClientError> for FDError {
-    fn from(_: ClientError) -> Self {
-        FDError::NotReady
-    }
-}
-
-impl idol_runtime::IHaveConsideredServerDeathWithThisErrorType for FDError {}
 
 struct ServerImpl<'a> {
     cmd_interface: CmdInterface<'a>,

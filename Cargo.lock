@@ -3220,6 +3220,7 @@ version = "0.1.0"
 dependencies = [
  "counters",
  "derive-idol-err",
+ "fw-device-api",
  "idol",
  "idol-runtime",
  "num-traits",
@@ -4764,6 +4765,7 @@ dependencies = [
 name = "pldm-responder"
 version = "0.1.0"
 dependencies = [
+ "fw-device-api",
  "idol",
  "idol-runtime",
  "mctp 0.2.0 (git+https://github.com/OpenPRoT/mctp-rs.git?branch=sync-features)",

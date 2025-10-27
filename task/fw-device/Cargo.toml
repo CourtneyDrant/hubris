@@ -8,6 +8,7 @@ userlib = { path = "../../sys/userlib", features = ["panic-messages"] }
 idol-runtime = { workspace = true }
 pldm-lib = { path = "../../../pldm-lib" }
 pldm-common = { path = "../../../pldm-lib/pldm-common" }
+fw-device-api = { path = "../fw-device-api" }
 zerocopy = { workspace = true }
 zerocopy-derive = { workspace = true }
 counters = { path = "../../lib/counters" }

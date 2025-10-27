@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+fw-device-api = { path = "../fw-device-api" }
 userlib = { path = "../../sys/userlib", features = ["panic-messages"] }
 idol-runtime = { workspace = true }
 mctp-api = { path = "../mctp-api" }

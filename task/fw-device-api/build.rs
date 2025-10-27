@@ -5,6 +5,6 @@
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     idol::Generator::new()
         .with_counters(idol::CounterSettings::default())
-        .build_client_stub("../../idl/dump-agent.idol", "client_stub.rs")?;
+        .build_client_stub("../../idl/fw-device.idol", "client_stub.rs")?;
     Ok(())
 }
