@@ -2,6 +2,7 @@ Interface(
     name: "FwDevice",
     ops: {
         "process_request": (
+            doc: "Access to the pldm-lib fd-context to process PLDM Type 5 commands.  Response returned in response lease.",
             leases: {
                 "request": (type: "[u8]", read: true),
                 "response": (type: "[u8]", write: true),
